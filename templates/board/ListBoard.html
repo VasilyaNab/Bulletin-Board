@@ -1,0 +1,66 @@
+{% extends 'flatpages/default.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container bg-dark text-light py-4">
+    <h1 class="mb-4">Список объявлений</h1>
+    
+    <div class="row">
+        {% for announcement in announcements %}
+            <div class="col-lg-4 col-md-5 p-2">
+                <div class="card bg-secondary border-light text-light h-100">
+                    
+                    {% if announcement.image %}
+                        <img src="{{ announcement.image.url }}" class="card-img-top" 
+                             style="height: 200px; object-fit: cover;">
+                    {% else %}
+                            <img src="{% static 'img/Not found image.png' %}" class="card-img-top" 
+                            style="height: 200px; object-fit: cover;">
+                    {% endif %}
+                    
+                    <div class="card-body d-flex flex-column">
+                        
+                        <h5 class="card-title">{{ announcement.header }}</h5>
+                        
+                        
+                        <div class="text-light mb-2">
+                            <small>Автор: {{ announcement.author.username }}</small><br>
+                            <small>{{ announcement.date_publication|date:"d.m.Y H:i" }}</small>
+                        </div>
+                        
+                        
+                        <p class="card-text flex-grow-1">
+                            {{ announcement.text|truncatechars:50 }}
+                        </p>
+                        
+
+                        <a href="#" class="btn btn-dark btn-sm disabled align-self-start mt-auto">
+                            Подробнее
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <div class="alert alert-dark">Объявления не найдены</div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    body {
+        background-color: #343a40;
+        color: #f8f9fa;
+    }
+    .card {
+        transition: transform 0.2s;
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+</style>
+{% endblock %}

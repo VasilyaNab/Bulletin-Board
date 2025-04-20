@@ -1,0 +1,75 @@
+{% extends 'flatpages/default.html' %}
+{% load static %}
+{% block content %}
+<div class="container mt-4">
+    <h1>Отклики на мои объявления</h1>
+
+    <form method="get" class="row g-3 mb-4">
+        <div class="col-md-5">
+            <select name="announcement" class="form-select">
+                <option value="">Все объявления</option>
+                {% for announcement in user_announcements %}
+                    <option value="{{ announcement.id }}" 
+                        {% if selected_announcement == announcement.id %}selected{% endif %}>
+                        {{ announcement.header }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="col-md-5">
+            <select name="status" class="form-select">
+                <option value="">Все статусы</option>
+                {% for status in statuses %}
+                    <option value="{{ status.id }}"
+                        {% if selected_status == status.id %}selected{% endif %}>
+                        {{ status.status }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100"><img src="{% static 'img/search.png' %}" width="30" height="30"></button>
+        </div>
+    </form>
+
+    {% if responses %}
+        <div class="responses-list">
+            {% for response in responses %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">{{ response.announcements.header }}</h5>
+                    <div class="card-text mb-2">
+                        <span class="text-muted">От:</span> {{ response.user.username }}<br>
+                        <span class="text-muted">Дата:</span> {{ response.created_date|date:"d.m.Y H:i" }}<br>
+                        <span class="text-muted">Статус:</span> 
+                        <span class="badge 
+                            {% if response.status.status == 'Принят' %}bg-success
+                            {% elif response.status.status == 'Отклонен' %}bg-danger
+                            {% else %}bg-secondary{% endif %}">
+                            {{ response.status.status }}
+                        </span>
+                    </div>
+                    
+                    <div class="btn-group">
+                        {% if response.status.status != 'Принят' %}
+                            <a href="{% url 'board:response-action' pk=response.pk action='accept' %}" 
+                               class="btn btn-sm btn-success">Принять</a>
+                        {% endif %}
+                        <a href="{% url 'board:response-action' pk=response.pk action='reject' %}" 
+                           class="btn btn-sm btn-warning">Отклонить</a>
+                        <a href="{% url 'board:response-action' pk=response.pk action='delete' %}" 
+                           class="btn btn-sm btn-danger">Удалить</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            Нет откликов, соответствующих выбранным фильтрам.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

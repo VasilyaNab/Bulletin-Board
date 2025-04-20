@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ваш отклик принят</title>
+</head>
+<body>
+    <h2>Ваш отклик принят!</h2>
+    <p>Автор объявления "{{ announcement.header }}" принял ваш отклик.</p>
+    <p>Вы можете связаться с автором по email: {{ author.email }}</p>
+    <p>Дата отклика: {{ response.created_date|date:"d.m.Y H:i" }}</p>
+</body>
+</html>

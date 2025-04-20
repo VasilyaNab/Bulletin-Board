@@ -3,6 +3,12 @@
 
 {% block content %}
 <div class="container bg-dark text-light py-4">
+    {% if user.is_authenticated %}
+    <div class="mb-4">
+        <a href="{% url 'board:announcement-create' %}" class="btn btn-success">+ Создать объявление</a>
+    </div>
+    {% endif %}
+    <br>
     <h1 class="mb-4">Список объявлений</h1>
     
     <div class="row">

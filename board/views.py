@@ -1,5 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.views.generic import CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
 from django.core.paginator import Paginator
 from django.contrib import messages
 from django.http import HttpResponseForbidden
@@ -18,6 +20,48 @@ def announcement_detail(request, pk):
         'announcement': announcement,
         'responses': responses,
     })
+
+class AnnouncementCreateView(CreateView):
+    model = Announcements
+    fields = ['header', 'text', 'image', 'category']
+    template_name = 'board/announcement_form.html'
+    
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        messages.success(self.request, "Объявление успешно создано!")
+        return super().form_valid(form)
+    
+    def get_success_url(self):
+        return reverse_lazy('board:announcement-detail', kwargs={'pk': self.object.pk})
+
+class AnnouncementUpdateView(UpdateView):
+    model = Announcements
+    fields = ['header', 'text', 'image', 'category']
+    template_name = 'board/announcement_form.html'
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.filter(author=self.request.user)
+    
+    def form_valid(self, form):
+        messages.success(self.request, "Объявление успешно обновлено!")
+        return super().form_valid(form)
+    
+    def get_success_url(self):
+        return reverse_lazy('board:announcement-detail', kwargs={'pk': self.object.pk})
+
+class AnnouncementDeleteView(DeleteView):
+    model = Announcements
+    template_name = 'board/announcement_confirm_delete.html'
+    success_url = reverse_lazy('board:announcement_list')
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.filter(author=self.request.user)
+    
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, "Объявление успешно удалено!")
+        return super().delete(request, *args, **kwargs)
 
 @login_required
 def create_response(request, announcement_id):
@@ -64,7 +108,6 @@ def response_list(request):
         announcements__author=request.user
     ).select_related('announcements', 'user', 'status').order_by('-created_date')
     
-    # Фильтрация
     announcement_id = request.GET.get('announcement')
     status_id = request.GET.get('status')
     
@@ -116,11 +159,13 @@ def newsletter_view(request):
                     category=category,
                     defaults={'subscribed': True}
                 )
+                messages.success(request, f"Вы подписались на категорию {category.name}")
             elif action == 'unsubscribe':
                 CategorySubscription.objects.filter(
                     user=request.user,
                     category=category
                 ).delete()
+                messages.success(request, f"Вы отписались от категории {category.name}")
         except Categories.DoesNotExist:
             messages.error(request, "Категория не найдена")
         

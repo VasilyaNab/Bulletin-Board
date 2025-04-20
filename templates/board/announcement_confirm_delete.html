@@ -1,0 +1,19 @@
+{% extends 'flatpages/default.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-body" style="background-color: black;">
+            <h3 class="card-title">Подтверждение удаления</h3>
+            <p>Вы точно хотите удалить объявление "{{ object.header }}"?</p>
+            <form method="post">
+                {% csrf_token %}
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-danger">Да, удалить</button>
+                    <a href="{% url 'board:announcement-detail' object.pk %}" class="btn btn-secondary">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

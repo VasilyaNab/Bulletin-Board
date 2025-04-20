@@ -1,0 +1,43 @@
+{% extends 'flatpages/default.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{% if object %}Редактирование{% else %}Создание{% endif %} объявления</h2>
+    <form method="post" enctype="multipart/form-data" class="mt-3">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+            <label for="id_header" class="form-label">Заголовок</label>
+            <input type="text" class="form-control" id="id_header" 
+                   name="header" value="{{ form.header.value|default:'' }}" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="id_text" class="form-label">Текст объявления</label>
+            <textarea class="form-control" id="id_text" name="text" rows="5" required>{{ form.text.value|default:'' }}</textarea>
+        </div>
+        
+        <div class="mb-3">
+            <label for="id_category" class="form-label">Категория</label>
+            <select class="form-select" id="id_category" name="category" required>
+                {% for value, label in form.category.field.choices %}
+                    <option value="{{ value }}" {% if form.category.value == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="mb-3">
+            <label for="id_image" class="form-label">Изображение</label>
+            <input class="form-control" type="file" id="id_image" name="image">
+        </div>
+        
+        <div class="mt-3">
+            <button type="submit" class="btn btn-primary">
+                {% if object %}Сохранить{% else %}Создать{% endif %}
+            </button>
+            <a href="{% if object %}{% url 'board:announcement-detail' object.pk %}{% else %}{% url 'board:announcement_list' %}{% endif %}" 
+               class="btn btn-secondary">Отмена</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

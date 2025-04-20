@@ -61,3 +61,12 @@ class Response(models.Model):
         verbose_name_plural = 'Отклики'
         ordering = ['-created_date']
         unique_together = ['announcements', 'user']
+
+class CategorySubscription(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    category = models.ForeignKey(Categories, on_delete=models.CASCADE)
+    subscribed = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'category')

@@ -3,7 +3,8 @@ from django.dispatch import receiver
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.conf import settings
-from .models import Response
+from django.core.mail import send_mail
+from .models import Response, Announcements, CategorySubscription
 
 @receiver(post_save, sender=Response)
 def notify_on_response_status_change(sender, instance, created, **kwargs):
@@ -38,3 +39,27 @@ def send_response_email(response, template_name, subject):
     )
     msg.attach_alternative(html_content, "text/html")
     msg.send()
+
+
+@receiver(post_save, sender=Announcements)
+def send_new_announcement_notification(sender, instance, created, **kwargs):
+    if created:
+        subscriptions = CategorySubscription.objects.filter(
+            category=instance.category,
+            subscribed=True
+        ).select_related('user')
+        
+        for subscription in subscriptions:
+            subject = f'Новое объявление в категории {instance.category.name}'
+            message = render_to_string('emails/new_announcement.html', {
+                'announcement': instance,
+                'user': subscription.user
+            })
+            
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [subscription.user.email],
+                html_message=message
+            )

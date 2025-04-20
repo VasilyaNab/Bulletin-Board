@@ -5,7 +5,8 @@ from .views import (
     response_action,
     announcement_list,
     announcement_detail,
-    create_response
+    create_response,
+    newsletter_view
 )
 from django.contrib.auth.views import LogoutView
 from django.views.generic import TemplateView
@@ -22,4 +23,5 @@ urlpatterns = [
     path('profile/responses/', response_list, name='response-list'),
     path('profile/responses/<int:pk>/<str:action>/', response_action, name='response-action'),
     path('announcement/<int:announcement_id>/create-response/', create_response, name='create-response'),
+    path('newsletter/', newsletter_view, name='newsletter'),
 ]

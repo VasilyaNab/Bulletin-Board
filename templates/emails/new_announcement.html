@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Новое объявление</title>
+</head>
+<body>
+    <h2>Новое объявление в категории {{ announcement.category.name }}</h2>
+    <h3>{{ announcement.header }}</h3>
+    <p>{{ announcement.text|truncatechars:100 }}</p>
+    <p>
+        <a href="{{ site_url }}{% url 'board:announcement-detail' pk=announcement.id %}">
+            Перейти к объявлению
+        </a>
+    </p>
+</body>
+</html>

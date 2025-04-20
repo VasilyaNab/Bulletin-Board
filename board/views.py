@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.contrib import messages
 from django.http import HttpResponseForbidden
-from .models import Announcements, Response, ResponseStatus
+from .models import Announcements, Response, ResponseStatus, Categories, CategorySubscription
 
 def announcement_list(request):
     announcements = Announcements.objects.all().order_by('-date_publication')
@@ -97,3 +97,37 @@ def response_action(request, pk, action):
         messages.success(request, 'Отклик удален')
     
     return redirect('board:response-list')
+
+@login_required
+def newsletter_view(request):
+    categories = Categories.objects.all()
+    subscriptions = CategorySubscription.objects.filter(user=request.user)
+    subscribed_ids = list(subscriptions.values_list('category_id', flat=True))
+    
+    if request.method == 'POST':
+        category_id = request.POST.get('category_id')
+        action = request.POST.get('action')
+        
+        try:
+            category = Categories.objects.get(id=category_id)
+            if action == 'subscribe':
+                CategorySubscription.objects.get_or_create(
+                    user=request.user,
+                    category=category,
+                    defaults={'subscribed': True}
+                )
+            elif action == 'unsubscribe':
+                CategorySubscription.objects.filter(
+                    user=request.user,
+                    category=category
+                ).delete()
+        except Categories.DoesNotExist:
+            messages.error(request, "Категория не найдена")
+        
+        return redirect('board:newsletter')
+
+    context = {
+        'categories': categories,
+        'subscribed_ids': subscribed_ids,
+    }
+    return render(request, 'board/newsletter.html', context)
